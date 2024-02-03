@@ -32,11 +32,6 @@ namespace Algoritmo_di_Dijkstra
         }
         public static void Main()
         {
-            Console.WriteLine("Inserisci nodo di partenza");
-            string NodoPartenza = (Console.ReadLine());
-            Console.WriteLine("Inserisci nodo di arrivo");
-            string NodoArrivo = (Console.ReadLine());
-            Random random = new Random();            
             int[,] matrice = GeneraMatriceSpecchiataConZeroObliqui(4, 4);
             for (int i = 0; i < matrice.GetLength(0); i++)
             {
@@ -46,9 +41,30 @@ namespace Algoritmo_di_Dijkstra
                 }
                 Console.WriteLine();
             }
+            Console.WriteLine("Inserisci nodo di partenza");
+            string NodoPartenza = (Console.ReadLine());
+            Console.WriteLine("Inserisci nodo di arrivo");
+            string NodoArrivo = (Console.ReadLine());                     
             int NodoPartenzaNum = (int)Convert.ToChar(NodoPartenza.ToUpper()) - 65;
             int NodoArrivoNum = (int)Convert.ToChar(NodoArrivo.ToUpper()) - 65;
-            
+            int costo = 0;
+            if (matrice[NodoPartenzaNum, NodoArrivoNum] != -1)
+            {
+                Console.WriteLine("Sono collegati direttamente e costa " + matrice[NodoPartenzaNum, NodoArrivoNum]);
+            }
+            else 
+            {
+                costo = matrice[NodoPartenzaNum + 1, NodoArrivoNum];
+                costo = matrice[NodoArrivoNum, NodoPartenzaNum];
+                for (int i = 0; i < 4; i++)
+                {
+                    if (matrice[i, 0] != -1 && i != NodoPartenzaNum && matrice[i, NodoArrivoNum] != -1)
+                    {
+                        costo = matrice[i, NodoArrivoNum] + matrice[i, NodoArrivoNum];
+                        Console.WriteLine("Il costo della strada è: \n" + costo);
+                    }
+                }
+            }
         }        
     }
 }
