@@ -8,63 +8,130 @@ namespace Algoritmo_di_Dijkstra
 {
     internal class Program
     {
-        static int[,] GeneraMatriceSpecchiataConZeroObliqui(int righe, int colonne)
+        class Dijkstra
+        {
+            public static void EseguiDijkstra(int[,] grafo, int numeroNodi, int nodoPartenza, int nodoArrivo)
+            {
+                int[] distanza = new int[numeroNodi];
+                int[] precedente = new int[numeroNodi];
+                bool[] visitato = new bool[numeroNodi];
+
+                for (int i = 0; i < numeroNodi; i++)
+                {
+                    distanza[i] = int.MaxValue;
+                    precedente[i] = -1;
+                    visitato[i] = false;
+                }
+
+                distanza[nodoPartenza] = 0;
+
+                for (int count = 0; count < numeroNodi - 1; count++)
+                {
+                    int u = TrovaMinimaDistanza(distanza, visitato);
+                    visitato[u] = true;
+
+                    for (int v = 0; v < numeroNodi; v++)
+                    {
+                        if (!visitato[v] && grafo[u, v] > 0)
+                        {
+                            int nuovaDistanza = distanza[u] + grafo[u, v];
+
+                            if (nuovaDistanza < distanza[v])
+                            {
+                                distanza[v] = nuovaDistanza;
+                                precedente[v] = u;
+                            }
+                        }
+                    }
+                }
+
+                Console.WriteLine($"\nDistanza minima dal nodo {(char)(nodoPartenza + 65)} al nodo {(char)(nodoArrivo + 65)}: {distanza[nodoArrivo]}");
+            }
+
+            private static int TrovaMinimaDistanza(int[] distanza, bool[] visitato)
+            {
+                int minimaDistanza = int.MaxValue;
+                int minimoNodo = -1;
+
+                for (int nodo = 0; nodo < distanza.Length; nodo++)
+                {
+                    if (!visitato[nodo] && distanza[nodo] < minimaDistanza)
+                    {
+                        minimaDistanza = distanza[nodo];
+                        minimoNodo = nodo;
+                    }
+                }
+
+                return minimoNodo;
+            }
+        }
+
+        static void Main(string[] args)
         {
             Random rnd = new Random();
-            int valoreCasuale = 0;
-            int[,] matrice = new int[righe, colonne];
-
-            for (int i = 0; i < righe; i++)
+            int numeroNodi = rnd.Next(3, 10);
+            int[,] matrice;
+            int ascii = 65;
+            Console.WriteLine($"Il numero di nodi è {numeroNodi}");
+            matrice = GeneratoreMatrice(numeroNodi);
+            Console.WriteLine($"Il peso dei nodi è:");
+            Console.Write("\n \t");
+            for (int i = 0; i < numeroNodi; i++)
             {
-                for (int j = 0; j < colonne / 2 +1; j++)
+                Console.Write($"{(char)(ascii + i)}\t");
+            }
+            for (int i = 0; i < numeroNodi; i++)
+            {
+                Console.WriteLine("\n");
+                Console.Write($"{(char)(ascii + i)}\t");
+
+                for (int j = 0; j < numeroNodi; j++)
                 {
-                    do
-                    {
-                        valoreCasuale = rnd.Next(-1, 11);
-                    }
-                    while (valoreCasuale == 0);
-                    matrice[i, j] = valoreCasuale;
-                    matrice[j, i] = valoreCasuale; 
+                    Console.Write($"{matrice[i, j]} \t");
                 }
+            }
+            Console.WriteLine("");
+            Console.WriteLine("");
+
+            Console.WriteLine("Inserisci il nodo di partenza:");
+            char nodoPartenzaLet = Convert.ToChar(Console.ReadLine());
+            int nodoPartenza = (int)nodoPartenzaLet - ascii;
+            Console.WriteLine("Inserisci il nodo di arrivo:");
+            char nodoArrivoLet = Convert.ToChar(Console.ReadLine());
+            int nodoArrivo = (int)nodoArrivoLet - ascii;       
+            Dijkstra.EseguiDijkstra(matrice, numeroNodi, nodoPartenza, nodoArrivo);
+            Console.ReadKey();
+        }
+
+        static int[,] GeneratoreMatrice(int dimensione)
+        {
+            Random rnd = new Random();
+            int[,] matrice = new int[dimensione, dimensione];
+
+            for (int i = 0; i < dimensione; i++)
+            {
+                for (int j = 0; j < dimensione; j++)
+                {
+                    int n = rnd.Next(-1, 9);
+                    while (n == 0 && i != j)
+                    {
+                        n = rnd.Next(-1, 9);
+                    }
+                    if (i == j)
+                    {
+                        matrice[i, i] = 0;
+                    }
+                    else
+                    {
+                        matrice[i, j] = n;
+                        matrice[j, i] = n;
+                    }
+                }
+
                 matrice[i, i] = 0;
             }
+
             return matrice;
         }
-        public static void Main()
-        {
-            int[,] matrice = GeneraMatriceSpecchiataConZeroObliqui(4, 4);
-            for (int i = 0; i < matrice.GetLength(0); i++)
-            {
-                for (int j = 0; j < matrice.GetLength(1); j++)
-                {
-                    Console.Write(matrice[i, j] + "\t");
-                }
-                Console.WriteLine();
-            }
-            Console.WriteLine("Inserisci nodo di partenza");
-            string NodoPartenza = (Console.ReadLine());
-            Console.WriteLine("Inserisci nodo di arrivo");
-            string NodoArrivo = (Console.ReadLine());                     
-            int NodoPartenzaNum = (int)Convert.ToChar(NodoPartenza.ToUpper()) - 65;
-            int NodoArrivoNum = (int)Convert.ToChar(NodoArrivo.ToUpper()) - 65;
-            int costo = 0;
-            if (matrice[NodoPartenzaNum, NodoArrivoNum] != -1)
-            {
-                Console.WriteLine("Sono collegati direttamente e costa " + matrice[NodoPartenzaNum, NodoArrivoNum]);
-            }
-            else 
-            {
-                costo = matrice[NodoPartenzaNum + 1, NodoArrivoNum];
-                costo = matrice[NodoArrivoNum, NodoPartenzaNum];
-                for (int i = 0; i < 4; i++)
-                {
-                    if (matrice[i, 0] != -1 && i != NodoPartenzaNum && matrice[i, NodoArrivoNum] != -1)
-                    {
-                        costo = matrice[i, NodoArrivoNum] + matrice[i, NodoArrivoNum];
-                        Console.WriteLine("Il costo della strada è: \n" + costo);
-                    }
-                }
-            }
-        }        
     }
 }
